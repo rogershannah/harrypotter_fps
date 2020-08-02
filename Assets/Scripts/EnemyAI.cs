@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -10,7 +11,8 @@ public class EnemyAI : MonoBehaviour
     }
 
     public FSMStates currentState;
-    public float enemySpeed = 5;
+    public float enemySpeed = 3.5f;
+    public float chaseSpeed = 5;
     public float chaseDistance = 10;
     public float attackDistance = 3;
     public GameObject player;
@@ -18,6 +20,8 @@ public class EnemyAI : MonoBehaviour
     public GameObject wandTip;
     public float shootRate = 2;
     public GameObject deadVFX;
+    public Transform enemyEyes;
+    public float fieldOfView = 45f;
 
 
     GameObject[] wanderPoints;
@@ -30,6 +34,7 @@ public class EnemyAI : MonoBehaviour
     EnemyHealth enemyHealth;
     int health;
     Transform deadTransform;
+    NavMeshAgent agent;
 
     bool isDead;
     void Start()
@@ -71,6 +76,7 @@ public class EnemyAI : MonoBehaviour
     void Initialize()
     {
 
+        agent = GetComponent<NavMeshAgent>();
         wanderPoints = GameObject.FindGameObjectsWithTag("WanderPoint");
         anim = GetComponent<Animator>();
         player = GameObject.FindGameObjectWithTag("Player");
@@ -89,6 +95,9 @@ public class EnemyAI : MonoBehaviour
 
         anim.SetInteger("animState", 1);
 
+        agent.stoppingDistance = 0;
+        agent.speed = enemySpeed;
+
         if(Vector3.Distance(transform.position, nextDestination) < 2)
         {
             FindNextPoint();
@@ -99,6 +108,7 @@ public class EnemyAI : MonoBehaviour
         }
         FaceTarget(nextDestination);
         //transform.position = Vector3.MoveTowards(transform.position, nextDestination, enemySpeed * Time.deltaTime);
+        agent.SetDestination(nextDestination);
     }
 
     void UpdateChaseState()
@@ -109,15 +119,20 @@ public class EnemyAI : MonoBehaviour
 
         nextDestination = player.transform.position;
 
-        if (distanceToPlayer <= attackDistance)
+        agent.stoppingDistance = attackDistance;
+        agent.speed = chaseSpeed;
+
+        if (distanceToPlayer <= attackDistance && IsPlayerInClearFOV())
         {
             currentState = FSMStates.Attack;
         } else if (distanceToPlayer > chaseDistance)
         {
+            FindNextPoint();
             currentState = FSMStates.Patrol;
         }
         FaceTarget(nextDestination);
         //transform.position = Vector3.MoveTowards(transform.position, nextDestination, enemySpeed * Time.deltaTime);
+        agent.SetDestination(nextDestination);
     }
 
     void UpdateAttackState()
@@ -165,6 +180,8 @@ public class EnemyAI : MonoBehaviour
         Debug.Log(curDestIndex);
         curDestIndex = (curDestIndex + 1) % wanderPoints.Length;
         nextDestination = wanderPoints[curDestIndex].transform.position;
+
+        agent.SetDestination(nextDestination);
     }
 
     void FaceTarget(Vector3 target)
@@ -207,5 +224,38 @@ public class EnemyAI : MonoBehaviour
         //chase
         Gizmos.color = Color.green;
         Gizmos.DrawWireSphere(transform.position, chaseDistance);
+
+        //fov rays
+        Vector3 frontRayPoint = enemyEyes.position + (enemyEyes.forward * chaseDistance);
+        Vector3 leftRayPoint = Quaternion.Euler(0, fieldOfView * 0.5f, 0) * frontRayPoint;
+        Vector3 rightRayPoint = Quaternion.Euler(0, -fieldOfView * 0.5f, 0) * frontRayPoint;
+    }
+
+    bool IsPlayerInClearFOV()
+    {
+        RaycastHit hit;
+        Vector3 directionToPlayer = player.transform.position - enemyEyes.position;
+
+        if(Vector3.Angle(directionToPlayer, enemyEyes.forward) <= fieldOfView)
+        {
+            if(Physics.Raycast(enemyEyes.position, directionToPlayer, out hit, chaseDistance)){
+                if (hit.collider.CompareTag("Player"))
+                {
+                    print("Player in sight!");
+                    return true;
+                } else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
     }
 }
