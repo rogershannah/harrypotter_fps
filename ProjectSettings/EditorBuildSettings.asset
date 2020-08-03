@@ -4,5 +4,11 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/MainMenu.unity
+    guid: 688e1deb12e50304bb5b9e37e2c557a3
+  - enabled: 1
+    path: Assets/Scenes/Quidditch.unity
+    guid: 986aa5f9ccbc6044285c4f70eb39cd6a
   m_configObjects: {}
