@@ -27,17 +27,27 @@ public class ShootProjectile : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetButtonDown("Fire1")) //left mouse/ctrl/fire button on any controller
+        if (!PauseMenuBehavior.isGamePaused)
         {
-            GameObject projectile = Instantiate(currentProjectilePrefab, transform.position + transform.forward, transform.rotation) as GameObject;
+            if (Input.GetButtonDown("Fire1")) //left mouse/ctrl/fire button on any controller
+            {
+                GameObject projectile = Instantiate(currentProjectilePrefab, transform.position + transform.forward, transform.rotation) as GameObject;
 
-            Rigidbody rb = projectile.GetComponent<Rigidbody>();
+                Rigidbody rb = projectile.GetComponent<Rigidbody>();
 
-            rb.AddForce(transform.forward * projectileSpeed, ForceMode.VelocityChange);
+                rb.AddForce(transform.forward * projectileSpeed, ForceMode.VelocityChange);
 
-            projectile.transform.SetParent(GameObject.FindGameObjectWithTag("ProjectileParent").transform);
+                projectile.transform.SetParent(GameObject.FindGameObjectWithTag("ProjectileParent").transform);
 
-            AudioSource.PlayClipAtPoint(spellSFX, transform.position);
+                AudioSource.PlayClipAtPoint(spellSFX, transform.position);
+            }
+
+            reticleImage.enabled = false;
+            ReticleEffect();
+        } 
+        else
+        {
+            reticleImage.enabled = false;
         }
     }
 
