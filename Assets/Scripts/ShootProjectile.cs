@@ -16,7 +16,7 @@ public class ShootProjectile : MonoBehaviour
     public Color reticleReductoColor;
 
     Color originalReticleColor;
-    GameObject currentProjectilePrefab;
+    public static GameObject currentProjectilePrefab;
 
     void Start()
     {

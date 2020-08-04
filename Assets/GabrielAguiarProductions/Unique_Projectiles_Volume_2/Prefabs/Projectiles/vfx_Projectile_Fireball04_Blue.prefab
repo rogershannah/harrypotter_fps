@@ -38381,7 +38381,7 @@ GameObject:
   - component: {fileID: -9137827437342215880}
   m_Layer: 0
   m_Name: vfx_Projectile_Fireball04_Blue
-  m_TagString: Bullet
+  m_TagString: Projectile
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
