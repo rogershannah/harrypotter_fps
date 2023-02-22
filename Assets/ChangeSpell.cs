@@ -9,7 +9,7 @@ public class ChangeSpell : MonoBehaviour
     public GameObject[] spells;
     public GameObject spellPanel;
     
-    int selectedtSpell = 0;
+    int selectedSpell = 0;
     GameObject currentProjectile;
     Button[] btns;
 
@@ -23,36 +23,37 @@ public class ChangeSpell : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        int prevSpell = selectedtSpell;
+        int prevSpell = selectedSpell;
         if(Input.GetAxis("Mouse ScrollWheel") < 0)
         {
-            if(selectedtSpell >= spells.Length - 1)
+            if(selectedSpell >= spells.Length - 1)
             {
-                selectedtSpell = 0;
+                selectedSpell = 0;
             } 
             else
             {
-                selectedtSpell++;
+                selectedSpell++;
             }
         }
         if (Input.GetAxis("Mouse ScrollWheel") > 0)
         {
-            if (selectedtSpell <= 0)
+            if (selectedSpell <= 0)
             {
-                selectedtSpell = spells.Length - 1;
+                selectedSpell = spells.Length - 1;
             }
             else
             {
-                selectedtSpell--;
+                selectedSpell--;
             }
         }
 
-        currentProjectile = spells[selectedtSpell];
+        currentProjectile = spells[selectedSpell];
         ShootProjectile.currentProjectilePrefab = currentProjectile;
 
-        if(prevSpell != selectedtSpell)
+        if(prevSpell != selectedSpell)
         {
             UpdateSpellUI();
+            PlayerPrefs.SetInt("selectedSpell", selectedSpell);
         }
     }
 
@@ -61,7 +62,7 @@ public class ChangeSpell : MonoBehaviour
         int i = 0;
         foreach(Button spellIcon in btns)
         {
-            if(i == selectedtSpell)
+            if(i == selectedSpell)
             {
                 spellIcon.transform.localScale *= 1.25f;
             }
